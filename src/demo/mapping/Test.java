@@ -71,7 +71,7 @@ public class Test
 
 	public static void buscarTodos()
 	{
-		ClienteDAO dao = new ClienteDAO();
+		ClienteDAOImple dao = new ClienteDAOImple();
 		//Cliente c = null;
 		System.out.println("__");
 		List<Cliente> clientes = dao.buscarTodos();
@@ -85,7 +85,7 @@ public class Test
 
 	public static void buscar(int idCliente)
 	{
-		ClienteDAO dao = new ClienteDAO();
+		ClienteDAOImple dao = new ClienteDAOImple();
 		Cliente c = dao.buscar(idCliente);
 		System.out.println(c.toStringLindo());
 		System.out.println("--------");
@@ -93,7 +93,7 @@ public class Test
 
 	public static void modificar(int idCliente, String nombre, String direccion, int tipoCliente)
 	{
-		ClienteDAO dao = new ClienteDAO();
+		ClienteDAOImple dao = new ClienteDAOImple();
 		int res = dao.update(idCliente,nombre,direccion,tipoCliente);
 		if (res == 0){
 			System.out.println("No se encontro el id " + idCliente);
@@ -106,7 +106,7 @@ public class Test
 
 	public static void insertar(int idCliente, String nombre, String direccion, int tipoCliente)
 	{
-		ClienteDAO dao = new ClienteDAO();
+		ClienteDAOImple dao = new ClienteDAOImple();
 		int res = dao.insert(idCliente,nombre,direccion,tipoCliente);
 		if (res == 0){
 			System.out.println("No se pudo dar de alta");

@@ -3,27 +3,36 @@ package demo.mapping;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Date;
 import java.util.ArrayList;
-//import java.util.Date;
 import java.util.List;
+
+import demo.util.JdbcUtil;
 
 public class ProductoDAO
 {
-	Connection con = Conexion.connection;
+	Connection con = JdbcUtil.getConnection();
 	PreparedStatement pstm = null;
 	ResultSet rs = null;
 
-	public List<Orden> buscarTodos()
+	public List<Producto> buscarProductosXCliente(int idCliente)
 	{
 		try
 		{
 			// preparo una sentencia
-			String sql="SELECT id_producto, descripcion, id_proveedor, id_categoria"
-					+ ", precio_unitario, unidades_stock, unidades_pedidas, flg_discontinuo "
-					+ " FROM producto ";
+			String sql="SELECT a.id_producto, a.descripcion, a.precio_unitario,"
+					+ " a.unidades_stock, a.unidades_pedidas, a.flg_discontinuo"
+					+ "	b.id_detalle_orden"
+					+ " FROM producto a"
+					+ "		,detalle_orden b"
+					+ "		,orden c"
+					+ "	WHERE c.id_cliente = ?"
+					+ "	AND c.id_orden = b.id_orden"
+					+ "	AND b.id_producto = a.id_producto";
 			pstm = con.prepareStatement(sql);
-			
+
+			// seteo el valor del parametro
+			pstm.setInt(1,idCliente);
+
 			// obtengo el cursor
 			rs = pstm.executeQuery();
 			
@@ -34,25 +43,20 @@ public class ProductoDAO
 			{
 				int idProducto = rs.getInt("id_producto");
 				String descripcion = rs.getString("descripcion");
-				int idProveedor = rs.getInt("id_proveedor");
 				int precioUnitario = rs.getInt("precio_unitario");
 				int unidadesStock = rs.getInt("unidades_stock");
 				int unidadesPedidas = rs.getInt("unidades_pedidas");
 				boolean flgDiscontinuo = rs.getBoolean("flg_discontinuo");
 
-				Producto c = new Producto();
-				c.setIdOrden(idOrden);
-				c.setFechaGenerada(fechaGenerada);
-				c.setFechaEntregada(fechaEntregada);
-				int idProducto = rs.getInt("id_producto");
-				String descripcion = rs.getString("descripcion");
-				int idProveedor = rs.getInt("id_proveedor");
-				int precioUnitario = rs.getInt("precio_unitario");
-				int unidadesStock = rs.getInt("unidades_stock");
-				int unidadesPedidas = rs.getInt("unidades_pedidas");
-				boolean flgDiscontinuo = rs.getBoolean("flg_discontinuo");
+				Producto p = new Producto();
+				p.setIdProducto(idProducto);
+				p.setDescripcion(descripcion);
+				p.setPrecioUnitario(precioUnitario);
+				p.setUnidadesStock(unidadesStock);
+				p.setUnidadesPedidas(unidadesPedidas);
+				p.setFlgDiscontinuo(flgDiscontinuo);
 			
-				ret.add(c);
+				ret.add(p);
 			}
 			return ret;
 		}
@@ -77,40 +81,103 @@ public class ProductoDAO
 		
 	}
 	
-	public Orden buscar(int idOrden)
+	public List<Producto> buscarTodos()
 	{
 		try
 		{
 			// preparo una sentencia
-			String sql="";
-			sql+="SELECT id_orden, fecha_generada, fecha_entregada ";
-		    sql+="FROM orden ";
-		    sql+="WHERE id_orden=? ";
+			String sql="SELECT id_producto, descripcion, precio_unitario,"
+					+ " unidades_stock, unidades_pedidas, flg_discontinuo "
+					+ " FROM producto ";
 			pstm = con.prepareStatement(sql);
-
-			// seteo el valor del parametro
-			pstm.setInt(1,idOrden);
 			
 			// obtengo el cursor
 			rs = pstm.executeQuery();
 			
-			Orden ret = null;
+			ArrayList<Producto> ret = new ArrayList<>();
+			
+			// iterar el resultSet
+			while( rs.next() )
+			{
+				int idProducto = rs.getInt("id_producto");
+				String descripcion = rs.getString("descripcion");
+				int precioUnitario = rs.getInt("precio_unitario");
+				int unidadesStock = rs.getInt("unidades_stock");
+				int unidadesPedidas = rs.getInt("unidades_pedidas");
+				boolean flgDiscontinuo = rs.getBoolean("flg_discontinuo");
+
+				Producto p = new Producto();
+				p.setIdProducto(idProducto);
+				p.setDescripcion(descripcion);
+				p.setPrecioUnitario(precioUnitario);
+				p.setUnidadesStock(unidadesStock);
+				p.setUnidadesPedidas(unidadesPedidas);
+				p.setFlgDiscontinuo(flgDiscontinuo);
+			
+				ret.add(p);
+			}
+			return ret;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+		finally
+		{
+			try
+			{
+				if( rs!=null ) rs.close();
+				if( pstm!=null ) pstm.close();
+			}
+			catch(Exception e2)
+			{
+				e2.printStackTrace();
+				throw new RuntimeException(e2);
+			}
+		}
+		
+	}
+	
+	public Producto buscar(int idProducto)
+	{
+		try
+		{
+			// preparo una sentencia
+			String sql="SELECT descripcion, precio_unitario,"
+					+ " unidades_stock, unidades_pedidas, flg_discontinuo "
+					+ " FROM producto "
+					+ " WHERE id_producto = ?";
+			pstm = con.prepareStatement(sql);
+
+			// seteo el valor del parametro
+			pstm.setInt(1,idProducto);
+			
+			// obtengo el cursor
+			rs = pstm.executeQuery();
+			
+			Producto ret = null;
 			
 			// iterar el resultSet
 			if( rs.next() )
 			{
-				int id = rs.getInt("idOrden");
-				Date fechaGenerada = rs.getDate("fechaGenerada");
-				Date fechaEntregada = rs.getDate("fechaEntregada");
+				String descripcion = rs.getString("descripcion");
+				int precioUnitario = rs.getInt("precio_unitario");
+				int unidadesStock = rs.getInt("unidades_stock");
+				int unidadesPedidas = rs.getInt("unidades_pedidas");
+				boolean flgDiscontinuo = rs.getBoolean("flg_discontinuo");
 
-				Orden o = new Orden();
-				o.setIdOrden(id);
-				o.setFechaGenerada(fechaGenerada);
-				o.setFechaEntregada(fechaEntregada);
-
+				Producto p = new Producto();
+				p.setIdProducto(idProducto);
+				p.setDescripcion(descripcion);
+				p.setPrecioUnitario(precioUnitario);
+				p.setUnidadesStock(unidadesStock);
+				p.setUnidadesPedidas(unidadesPedidas);
+				p.setFlgDiscontinuo(flgDiscontinuo);
+				
 				if( rs.next() )
 				{
-					throw new RuntimeException("Mas de una fila con el mismo id ("+idOrden+")");
+					throw new RuntimeException("Mas de una fila con el mismo id ("+idProducto+")");
 				}
 			}
 			
@@ -136,22 +203,28 @@ public class ProductoDAO
 		}
 	}
 		
-	public int update(int idOrden, Date fechaGenerada, Date fechaEntregada)
+	public int update(int idProducto, String descripcion, double precioUnitario, int unidadesStock, int unidadesPedidas, boolean flgDiscontinuo)
 	{
 			try
 			{
 				// preparo una sentencia
-				String sql="UPDATE orden "
-						+ "SET fecha_generada = ?"
-						+ " , fecha_entregada = ?"
-						+ " WHERE id_orden = ?";
+				String  sql="UPDATE producto "
+						+ "SET descripcion = ?"
+						+ "   ,precio_unitario = ?"
+						+ "   ,unidades_stock = ?"
+						+ "   ,unidades_pedidas = ?"
+						+ "   ,flg_discontinuo = ?"
+						+ " WHERE id_producto = ?";
 				pstm = con.prepareStatement(sql);
 
 				
 				// seteo el valor del parametro
-				pstm.setDate(1,fechaGenerada);
-				pstm.setDate(2,fechaEntregada);
-				pstm.setInt(3,idOrden);
+				pstm.setString(1,descripcion);
+				pstm.setDouble(2,precioUnitario);
+				pstm.setInt(3,unidadesStock);
+				pstm.setInt(4,unidadesPedidas);
+				pstm.setBoolean(5,flgDiscontinuo);
+				pstm.setInt(6,idProducto);
 				
 				return pstm.executeUpdate();
  
@@ -176,20 +249,25 @@ public class ProductoDAO
 			}
 		}
 	
-	public int insert(int idOrden, Date fechaGenerada, Date fechaEntregada)
+	public int insert(int idProducto, int idProveedor, int idCategoria, String descripcion, double precioUnitario, int unidadesStock, int unidadesPedidas, boolean flgDiscontinuo)
 	{
 		try	
 		{	
 			// preparo una sentencia
-			String sql="INSERT INTO orden "
-					+ " VALUES (?, ?, ?)";
+			String sql="INSERT INTO producto "
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 			pstm = con.prepareStatement(sql);
 	
 			// seteo el valor del parametro
-			pstm.setInt(1,idOrden);
-			pstm.setDate(2,fechaGenerada);
-			pstm.setDate(3,fechaEntregada);
-					
+			pstm.setInt(1,idProducto);
+			pstm.setInt(2,idProveedor);
+			pstm.setInt(2,idCategoria);
+			pstm.setString(2,descripcion);
+			pstm.setDouble(3,precioUnitario);
+			pstm.setInt(4,unidadesStock);
+			pstm.setInt(5,unidadesPedidas);
+			pstm.setBoolean(6,flgDiscontinuo);
+			
 			return pstm.executeUpdate();
 	 
 		}

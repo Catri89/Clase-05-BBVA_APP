@@ -1,7 +1,5 @@
 package demo.mapping;
 
-import java.util.Date;
-
 public class Categoria
 {
 	private int idCategoria;

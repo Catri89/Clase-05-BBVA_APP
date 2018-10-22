@@ -4,12 +4,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.sql.Date;
 import java.util.List;
+
+import demo.util.JdbcUtil;
 
 public class Detalle_OrdenDAO
 {
-	Connection con = Conexion.connection;
+	Connection con = JdbcUtil.getConnection();
 	PreparedStatement pstm = null;
 	ResultSet rs = null;
 

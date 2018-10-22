@@ -8,6 +8,13 @@ import java.util.Properties;
 public class JdbcUtil
 {
 	private static Connection con = null;
+	
+	static
+	{
+		//Esto es para que se ejecute este bloque de codigo la primera vez que se 
+		//invoca un metodo de esta clase
+		Runtime.getRuntime().addShutdownHook(new MiShutDownHook());
+	}
 
 	public static Connection getConnection()
 	{		
@@ -15,9 +22,6 @@ public class JdbcUtil
 		{
 			if( con==null || con.isClosed() )
 			{
-				Runtime.getRuntime().addShutdownHook(new MiShutDownHook());
-				
-				
 				Properties p = new Properties();
 				p.load(new FileInputStream("jdbc.properties"));
 				

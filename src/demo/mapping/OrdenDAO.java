@@ -8,9 +8,11 @@ import java.util.ArrayList;
 //import java.util.Date;
 import java.util.List;
 
+import demo.util.JdbcUtil;
+
 public class OrdenDAO
 {
-	Connection con = Conexion.connection;
+	Connection con = JdbcUtil.getConnection();
 	PreparedStatement pstm = null;
 	ResultSet rs = null;
 

@@ -6,10 +6,12 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import demo.util.JdbcUtil;
+
 public class CategoriaDAO
 {
 	
-	Connection con = Conexion.connection;
+	Connection con = JdbcUtil.getConnection();
 	PreparedStatement pstm = null;
 	ResultSet rs = null;
 
